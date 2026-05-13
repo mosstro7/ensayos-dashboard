@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Ensayos Dashboard — Resumen del Proyecto</title>
+<style>
+  @media print {
+    body { margin: 0; }
+    .no-print { display: none; }
+    h2 { page-break-before: auto; }
+    table { page-break-inside: avoid; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #1e293b;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 48px;
+  }
+  header {
+    border-bottom: 3px solid #16a34a;
+    padding-bottom: 16px;
+    margin-bottom: 28px;
+  }
+  header h1 { font-size: 22px; color: #15803d; }
+  header p  { color: #64748b; font-size: 12px; margin-top: 4px; }
+  h2 {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #15803d;
+    border-bottom: 1px solid #d1fae5;
+    padding-bottom: 4px;
+    margin: 28px 0 12px;
+  }
+  h3 { font-size: 13px; font-weight: 700; margin: 14px 0 6px; color: #334155; }
+  p  { margin-bottom: 8px; }
+  ul { padding-left: 20px; margin-bottom: 10px; }
+  li { margin-bottom: 3px; }
+  code {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 0 5px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11.5px;
+    color: #0f172a;
+  }
+  pre {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    font-size: 12px;
+  }
+  th {
+    background: #f0fdf4;
+    color: #166534;
+    font-weight: 700;
+    text-align: left;
+    padding: 7px 10px;
+    border: 1px solid #d1fae5;
+  }
+  td {
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .badge {
+    display: inline-block;
+    background: #d1fae5;
+    color: #166534;
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-gray {
+    background: #f1f5f9;
+    color: #475569;
+  }
+  .badge-amber {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .section-note {
+    background: #f0fdf4;
+    border-left: 3px solid #16a34a;
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+    margin-bottom: 12px;
+    color: #166534;
+  }
+  .warning {
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+    margin-bottom: 12px;
+    color: #92400e;
+  }
+  .print-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #16a34a;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .print-btn:hover { background: #15803d; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .col   { }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">⬇ Guardar como PDF</button>
+
+<header>
+  <h1>Ensayos Dashboard</h1>
+  <p>Resumen del estado del proyecto · <span id="fecha"></span></p>
+  <script>document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-AR', {day:'2-digit', month:'long', year:'numeric'});</script>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>Stack tecnológico</h2>
+<table>
+  <tr><th>Tecnología</th><th>Uso</th><th>Versión</th></tr>
+  <tr><td>React</td><td>UI, componentes, hooks</td><td>18</td></tr>
+  <tr><td>Vite</td><td>Build y dev server</td><td>6.4</td></tr>
+  <tr><td>Tailwind CSS</td><td>Estilos utilitarios</td><td>v4</td></tr>
+  <tr><td>Recharts</td><td>Gráfico de barras de avance</td><td>—</td></tr>
+  <tr><td>PapaParse</td><td>Parseo de CSV desde Google Sheets</td><td>—</td></tr>
+  <tr><td>Anthropic API</td><td>Generación de acta de servicio con IA (opcional)</td><td>claude-sonnet-4-6</td></tr>
+</table>
+<div class="section-note">No hay backend. Todo corre en el browser. Los datos se leen desde Google Sheets públicos exportados como CSV.</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>Fuentes de datos</h2>
+<table>
+  <tr><th>Tipo</th><th>Hojas</th><th>Modo de configuración</th></tr>
+  <tr>
+    <td><strong>Salas / Áreas</strong></td>
+    <td>Múltiples hojas de datos (Citos, Micro, PPCI, etc.) + hoja PD (opcional)</td>
+    <td>Auto con Google API Key, o manual (URL por pestaña)</td>
+  </tr>
+  <tr>
+    <td><strong>Equipos LAF</strong></td>
+    <td>Resultados + Data</td>
+    <td>Auto con Google API Key, o manual</td>
+  </tr>
+</table>
+<div class="warning"><strong>Requisito:</strong> El archivo en Google Drive debe ser Google Sheets nativo (no .xlsx) para usar la detección automática via API. Convertir con: Archivo → Guardar como Google Sheets.</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>Setup y configuración</h2>
+
+<h3>Con Google API Key (modo automático)</h3>
+<ul>
+  <li>La clave se guarda en <code>localStorage</code> en una key separada y <strong>no se borra al reconfigurar</strong>.</li>
+  <li>El usuario pega la URL del spreadsheet → "Detectar hojas" → llama a <code>sheets.googleapis.com/v4/spreadsheets/{ID}</code>.</li>
+  <li>Se listan todas las pestañas con:
+    <ul>
+      <li><strong>Checkboxes</strong> para marcar cuáles son hojas de datos (por defecto: todas seleccionadas)</li>
+      <li><strong>Radio</strong> para elegir cuál es la hoja PD (por defecto: ninguna)</li>
+    </ul>
+  </li>
+  <li>Equipos: detecta automáticamente las pestañas "Resultados" y "Data" por nombre exacto.</li>
+  <li>Errores descriptivos para: archivo .xlsx, restricciones de referrer, API no habilitada, key inválida.</li>
+</ul>
+
+<h3>Sin Google API Key (modo manual / fallback)</h3>
+<ul>
+  <li>Un campo URL por hoja (RawData obligatoria, PD opcional).</li>
+  <li>Validación post-fetch: parsea el CSV y verifica que retorne datos.</li>
+  <li>Detección de URLs invertidas (<em>swap detection</em>): si RawData devuelve presiones y PD devuelve salas, informa el error específico.</li>
+</ul>
+
+<h3>Schema de configuración (localStorage)</h3>
+<pre>
+{
+  // Salas
+  rawDataSheetId,          // ID del spreadsheet de Google
+  rawDataGid,              // gid único — modo manual (null en modo auto)
+  rawDataSheets,           // [{title, gid}, …] — modo auto (null en modo manual)
+  pdSheetId,               // null si no se configuró hoja PD
+  pdGid,                   // null si no se configuró hoja PD
+
+  // Equipos
+  equipResultsSheetId, equipResultsGid,
+  equipDataSheetId, equipDataGid,
+
+  // IA
+  anthropicApiKey,
+  anthropicModel           // default: "claude-sonnet-4-6"
+}
+
+// Clave separada (no se borra con clearConfig):
+localStorage['ensayos_google_api_key']
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>Parser de salas (rawdata.js)</h2>
+<table>
+  <tr><th>Columna</th><th>Índice</th><th>Uso</th></tr>
+  <tr><td>Sala / ID</td><td>0</td><td>shortId = primer token (ej: "S01 Nombre" → "S01"). Agrupa filas por Map.</td></tr>
+  <tr><td>Área</td><td>1</td><td>m² para fallback de puntos de conteo</td></tr>
+  <tr><td>Cant. filtros</td><td>3</td><td>denominar caudales (1 caudal por filtro)</td></tr>
+  <tr><td>Integridad</td><td>9</td><td>DENTRO / FUERA DEL LIMITE (todas las filas del grupo)</td></tr>
+  <tr><td>Criterio RH</td><td>10</td><td>Requiere operador ≥ ≤ &lt; &gt; (parseCriterion guard)</td></tr>
+  <tr><td>RH calculado</td><td>15</td><td>Ren. Horarias medidas; también marca caudal como completo</td></tr>
+  <tr><td>Clase GMP</td><td>16</td><td>Badge de color en tabla; lógica de exclusión Integridad</td></tr>
+  <tr><td>Puntos conteo</td><td>17</td><td>N° puntos explícito; fallback: ceil(√área)</td></tr>
+  <tr><td>Conteo Reposo</td><td>18</td><td>—</td></tr>
+  <tr><td>Conteo Operación</td><td>19</td><td>N/A válido como "sin operación"</td></tr>
+</table>
+<ul>
+  <li>Comma-decimal español: <code>toNumber("58,26") → 58.26</code></li>
+  <li>Multi-hoja: cada CSV se parsea independientemente y los arrays se concatenan con <code>flatMap</code>.</li>
+  <li>El parser existente funciona sin cambios para cualquier hoja con el mismo formato de columnas.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>Dashboard</h2>
+
+<h3>Header</h3>
+<ul>
+  <li>Hora de última actualización · botón Actualizar · ⚙ Ensayos · Reconfigurar (<strong>con diálogo de confirmación</strong>)</li>
+</ul>
+
+<h3>Resumen superior (tarjetas)</h3>
+<div class="cols2">
+  <div class="col">
+    <ul>
+      <li><strong>ProgressRing Salas</strong> — % promedio de completitud</li>
+      <li><strong>ProgressRing Equipos</strong> — oculto si no hay hoja de equipos configurada</li>
+    </ul>
+  </div>
+  <div class="col">
+    <ul>
+      <li><strong>Ensayos pendientes</strong> — total proyecto</li>
+      <li><strong>NO CONFORME</strong> — highlight rojo si &gt; 0</li>
+    </ul>
+  </div>
+</div>
+
+<h3>Métricas detalladas (colapsable)</h3>
+<table>
+  <tr><th>Card</th><th>Contenido</th></tr>
+  <tr><td>Salas</td><td>Total · pendientes de conteo · pendientes de caudal</td></tr>
+  <tr><td>Filtros HEPA</td><td>Total · medidos · pendientes</td></tr>
+  <tr><td>Caudales</td><td>Total · hechos · pendientes</td></tr>
+  <tr><td>Conteo de partículas</td><td>Breakdown por clase GMP con tiempos (XXhs:XXmin) y mini-barras de progreso. Siempre visible si hay salas.</td></tr>
+</table>
+
+<h3>Tabla de salas (RoomTable)</h3>
+<ul>
+  <li>Columnas: ID · Nombre · Clase GMP · Integ. · Ren.Hor. · Conteo · Temp. · Hum. · Luz · Ruido · Recup. · PD · % Total</li>
+  <li>Columna PD: <strong>se oculta automáticamente</strong> si no hay hoja PD configurada (<code>showPd={pressures.length > 0}</code>)</li>
+  <li>Celdas de estado: <code>✓</code> conforme · <code>✗</code> NO CONFORME · <code>pend.</code> pendiente · <code>—</code> N/A por settings o no aplica</li>
+</ul>
+
+<h3>Configuración de ensayos (⚙ panel)</h3>
+<table>
+  <tr><th>Ensayo</th><th>Opciones</th></tr>
+  <tr><td>Integridad</td><td>Incluir todas / Excluir Clase D + ISO 8 + Informativo / Excluir todas</td></tr>
+  <tr><td>Recuperación</td><td>Toggle incluir/excluir del denominador</td></tr>
+  <tr><td>Luz</td><td>Toggle incluir/excluir del denominador</td></tr>
+  <tr><td>Ruido</td><td>Toggle incluir/excluir del denominador</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>Informe IA (TextReport + report.js)</h2>
+<ul>
+  <li>Requiere Anthropic API Key (opcional). Modelo configurable, default <code>claude-sonnet-4-6</code>.</li>
+  <li>Formato: <strong>acta de servicio compacta</strong> — ensayos ejecutados + salas, faltantes, conformes, no conformes, pendientes.</li>
+  <li>Si no hay hoja de equipos configurada, el prompt instruye explícitamente a no mencionarlos.</li>
+  <li>Llamada directa al API desde el browser con header <code>anthropic-dangerous-direct-browser-access: true</code>.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>Estructura de archivos</h2>
+<pre>
+src/
+├── components/
+│   ├── Setup.jsx           ← Configuración inicial (auto + manual)
+│   ├── Dashboard.jsx       ← Vista principal
+│   ├── RoomTable.jsx       ← Tabla de salas con columna PD ocultable
+│   ├── EquipmentTable.jsx  ← Tabla de equipos
+│   ├── DetailPanel.jsx     ← Panel lateral de detalle
+│   ├── FilterBar.jsx       ← Filtros por estado y clase
+│   ├── StatsSection.jsx    ← Métricas detalladas (colapsable)
+│   ├── TextReport.jsx      ← UI del informe IA
+│   ├── TestSettingsPanel.jsx ← Panel ⚙ de config de ensayos
+│   ├── TestBreakdownChart.jsx ← Gráfico de barras
+│   └── ProgressRing.jsx    ← Anillo de progreso SVG
+├── hooks/
+│   ├── useRoomsData.js     ← Fetch + parse salas (multi-hoja)
+│   ├── useEquipmentData.js ← Fetch + parse equipos
+│   └── useTestSettings.js  ← Persistencia config ensayos
+├── parsers/
+│   ├── rawdata.js          ← Parser de hojas de salas
+│   ├── pd.js               ← Parser de presión diferencial
+│   └── flujos.js           ← Parser de equipos LAF
+├── utils/
+│   ├── googleSheets.js     ← fetchSheetAsCsv, fetchSheetsList, parseCsv
+│   ├── completionPct.js    ← calcCompletionPct con settings
+│   ├── statsCalc.js        ← Métricas detalladas (tiempo, filtros, etc.)
+│   └── report.js           ← buildProgressSummary + generateReport (Anthropic)
+└── config/
+    └── storage.js          ← saveConfig, loadConfig, saveGoogleApiKey, caché
+</pre>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2>Pendientes / limitaciones conocidas</h2>
+<ul>
+  <li><span class="badge badge-amber">Requisito externo</span> El spreadsheet debe ser Google Sheets nativo (no .xlsx) para la detección automática.</li>
+  <li><span class="badge badge-gray">Sin git</span> El proyecto no tiene repositorio git inicializado — no hay historial de versiones.</li>
+  <li><span class="badge badge-gray">Sin backend</span> La Anthropic API Key queda expuesta en el browser. Aceptable para uso interno/local.</li>
+  <li><span class="badge badge-gray">Bundle size</span> JS bundle ~638 kB minificado (Recharts + PapaParse). Sin code-splitting por ahora.</li>
+</ul>
+
+<p style="margin-top:36px; color:#94a3b8; font-size:11px; text-align:center; border-top:1px solid #e2e8f0; padding-top:12px;">
+  Ensayos Dashboard · Generado automáticamente
+</p>
+</body>
+</html>
