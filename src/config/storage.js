@@ -1,3 +1,34 @@
+import { createProject, getActiveProject } from '../utils/projects.js';
+
+/**
+ * Si existe config en el formato viejo (clave 'ensayos_config'),
+ * la migra al nuevo sistema de proyectos y borra la clave vieja.
+ * Se llama una sola vez en App.jsx al montar.
+ */
+export function migrateOldConfig() {
+  const OLD_KEY = 'ensayos_config';
+  const raw = localStorage.getItem(OLD_KEY);
+  if (!raw) return;
+
+  if (getActiveProject()) {
+    localStorage.removeItem(OLD_KEY);
+    return;
+  }
+
+  try {
+    const oldConfig = JSON.parse(raw);
+    createProject({
+      client: 'Proyecto importado',
+      execution: 'Configuración anterior',
+      config: oldConfig,
+    });
+    localStorage.removeItem(OLD_KEY);
+    console.info('[Migration] Config anterior migrada al nuevo sistema de proyectos.');
+  } catch {
+    console.warn('[Migration] No se pudo migrar la config anterior.');
+  }
+}
+
 export const STORAGE_KEYS = {
   CONFIG:          'ensayos_config',
   ROOMS_CACHE:     'ensayos_rooms_cache',

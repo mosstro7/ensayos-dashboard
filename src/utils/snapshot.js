@@ -1,5 +1,37 @@
 const SNAPSHOT_KEY_PREFIX = 'ensayos_snapshot_';
 
+function isGmpD(gmpClass) {
+  if (!gmpClass) return false;
+  const s = String(gmpClass).toUpperCase();
+  return s.endsWith('D') || s.includes(' D') || s.includes('ISO 8')
+      || s.includes('INFORMATIVO') || s.includes('INFORMATIVA');
+}
+
+function isRoomTestActive(testName, room, settings) {
+  if (!settings) return true;
+  if (testName === 'Integridad') {
+    if (settings.integridad === 'none') return false;
+    if (settings.integridad === 'exclude-d' && isGmpD(room.gmpClass)) return false;
+  }
+  if (testName === 'Ren. Horarias' && settings.renovaciones === false) return false;
+  if (testName === 'Temperatura'   && settings.temperatura === false)  return false;
+  if (testName === 'Humedad'       && settings.humedad === false)      return false;
+  if (testName === 'Luz'           && settings.luz === false)          return false;
+  if (testName === 'Ruido'         && settings.ruido === false)        return false;
+  if (testName === 'Recuperación') {
+    if (settings.recuperacion === false) return false;
+    if (settings.recuperacionSalas?.[room.id] === false) return false;
+  }
+  return true;
+}
+
+function isEquipTestActive(testName, settings) {
+  if (!settings) return true;
+  if (testName === 'Luz'   && settings.luz === false)   return false;
+  if (testName === 'Ruido' && settings.ruido === false) return false;
+  return true;
+}
+
 function snapshotKey(dateStr) {
   return `${SNAPSHOT_KEY_PREFIX}${dateStr}`;
 }
@@ -55,7 +87,7 @@ export function getSnapshot(dateStr = yesterdayStr()) {
   }
 }
 
-export function computeDelta(currentRooms, currentEquipment, snapshot) {
+export function computeDelta(currentRooms, currentEquipment, snapshot, settings) {
   const newlyDone = [];
   const newlyNonConforme = [];
 
@@ -69,6 +101,7 @@ export function computeDelta(currentRooms, currentEquipment, snapshot) {
   for (const room of currentRooms) {
     const prev = prevRoomsMap[room.id];
     for (const [testName, test] of Object.entries(room.tests || {})) {
+      if (!isRoomTestActive(testName, room, settings)) continue;
       const wasDone = prev?.tests?.[testName]?.done ?? false;
       if (!wasDone && test.done) {
         newlyDone.push({ type: 'sala', id: room.id, name: room.fullName, testName });
@@ -82,6 +115,7 @@ export function computeDelta(currentRooms, currentEquipment, snapshot) {
   for (const eq of currentEquipment || []) {
     const prev = prevEquipMap[eq.id];
     for (const [testName, test] of Object.entries(eq.tests || {})) {
+      if (!isEquipTestActive(testName, settings)) continue;
       const wasDone = prev?.tests?.[testName]?.done ?? false;
       if (!wasDone && test.done) {
         newlyDone.push({ type: 'equipo', id: eq.id, name: eq.tag || eq.id, testName });
@@ -97,7 +131,7 @@ export function computeDelta(currentRooms, currentEquipment, snapshot) {
       id: r.id,
       name: r.fullName,
       pendingTests: Object.entries(r.tests || {})
-        .filter(([, t]) => !t.done)
+        .filter(([name, t]) => isRoomTestActive(name, r, settings) && !t.done)
         .map(([name]) => name),
     }))
     .filter(r => r.pendingTests.length > 0);

@@ -13,9 +13,15 @@ function isTestNA(testName, room, settings) {
           || s.includes('INFORMATIVO') || s.includes('INFORMATIVA');
     }
   }
-  if (testName === 'Recuperación' && !settings.recuperacion) return true;
-  if (testName === 'Luz'          && !settings.luz)          return true;
-  if (testName === 'Ruido'        && !settings.ruido)        return true;
+  if (testName === 'Ren. Horarias' && !settings.renovaciones) return true;
+  if (testName === 'Temperatura'   && !settings.temperatura)  return true;
+  if (testName === 'Humedad'       && !settings.humedad)      return true;
+  if (testName === 'Luz'           && !settings.luz)          return true;
+  if (testName === 'Ruido'         && !settings.ruido)        return true;
+  if (testName === 'Recuperación') {
+    if (!settings.recuperacion) return true;
+    if (settings.recuperacionSalas?.[room.id] === false) return true;
+  }
   return false;
 }
 

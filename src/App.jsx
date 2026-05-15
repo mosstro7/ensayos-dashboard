@@ -1,5 +1,5 @@
-import { useState, Component } from 'react';
-import { loadConfig } from './config/storage.js';
+import { useState, useEffect, Component } from 'react';
+import { loadConfig, migrateOldConfig } from './config/storage.js';
 import Setup     from './components/Setup.jsx';
 import Dashboard from './components/Dashboard.jsx';
 
@@ -36,6 +36,8 @@ class ErrorBoundary extends Component {
 }
 
 export default function App() {
+  useEffect(() => { migrateOldConfig(); }, []);
+
   const [config, setConfig] = useState(() => {
     const saved = loadConfig();
     console.log('[App] Config inicial desde localStorage:', saved);

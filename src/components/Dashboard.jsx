@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { saveSnapshot } from '../utils/snapshot.js';
+import { getActiveProject } from '../utils/projects.js';
 import { useRoomsData }     from '../hooks/useRoomsData.js';
 import { useEquipmentData } from '../hooks/useEquipmentData.js';
 import { useTestSettings }  from '../hooks/useTestSettings.js';
@@ -31,6 +32,9 @@ function calcRoomBreakdown(rooms, pressures, settings, pdRoomIds) {
                || s.includes('INFORMATIVO') || s.includes('INFORMATIVA'));
       });
     }
+    if (type === 'Recuperación' && settings.recuperacionSalas) {
+      applicable = applicable.filter(r => settings.recuperacionSalas[r.id] !== false);
+    }
     const done = applicable.filter(r => r.tests[type]?.done).length;
     return { name: type, total: applicable.length, done, pct: applicable.length > 0 ? Math.round((done / applicable.length) * 100) : 0 };
   });
@@ -46,7 +50,9 @@ function calcRoomBreakdown(rooms, pressures, settings, pdRoomIds) {
   }
   const pdTotal = Object.keys(pdMap).length;
   const pdDone  = Object.values(pdMap).filter(pds => pds.every(p => p.done)).length;
-  breakdown.push({ name: 'Presión Diferencial', total: pdTotal, done: pdDone, pct: pdTotal > 0 ? Math.round((pdDone / pdTotal) * 100) : 0 });
+  if (settings.pd !== false) {
+    breakdown.push({ name: 'Presión Diferencial', total: pdTotal, done: pdDone, pct: pdTotal > 0 ? Math.round((pdDone / pdTotal) * 100) : 0 });
+  }
 
   return breakdown;
 }
@@ -82,9 +88,31 @@ function countNoConforme(rooms, equipment) {
   return roomNc + equipNc;
 }
 
-function countPending(rooms, equipment) {
-  const roomPending  = rooms.reduce((s, r)  => s + Object.values(r.tests).filter(t => !t.done).length, 0);
-  const equipPending = equipment.reduce((s, e) => s + Object.values(e.tests).filter(t => !t.done).length, 0);
+function countPending(rooms, equipment, settings) {
+  const roomPending = rooms.reduce((s, r) => {
+    return s + Object.entries(r.tests || {}).filter(([name, t]) => {
+      if (t.done) return false;
+      if (name === 'Integridad') {
+        if (settings.integridad === 'none') return false;
+        if (settings.integridad === 'exclude-d') {
+          const g = String(r.gmpClass || '').toUpperCase();
+          if (g.endsWith('D') || g.includes(' D') || g.includes('ISO 8')
+            || g.includes('INFORMATIVO') || g.includes('INFORMATIVA')) return false;
+        }
+      }
+      if (name === 'Ren. Horarias' && !settings.renovaciones) return false;
+      if (name === 'Temperatura'   && !settings.temperatura)  return false;
+      if (name === 'Humedad'       && !settings.humedad)      return false;
+      if (name === 'Luz'           && !settings.luz)          return false;
+      if (name === 'Ruido'         && !settings.ruido)        return false;
+      if (name === 'Recuperación') {
+        if (!settings.recuperacion) return false;
+        if (settings.recuperacionSalas?.[r.id] === false) return false;
+      }
+      return true;
+    }).length;
+  }, 0);
+  const equipPending = equipment.reduce((s, e) => s + Object.values(e.tests || {}).filter(t => !t.done).length, 0);
   return roomPending + equipPending;
 }
 
@@ -119,6 +147,8 @@ function LoadingBar() {
 // ─── main component ──────────────────────────────────────────────────────────
 
 export default function Dashboard({ config, onReconfigure }) {
+  const activeProject = getActiveProject();
+
   const rooms    = useRoomsData();
   const equip    = useEquipmentData();
   const { settings, update: updateSetting } = useTestSettings();
@@ -179,7 +209,7 @@ export default function Dashboard({ config, onReconfigure }) {
 
   const globalRoomsPct = avgRoomPct(rooms.rooms, settings);
   const globalEquipPct = avgEquipPct(equip.equipment);
-  const pending        = countPending(rooms.rooms, equip.equipment);
+  const pending        = countPending(rooms.rooms, equip.equipment, settings);
   const noConf         = countNoConforme(rooms.rooms, equip.equipment);
 
   const roomBreakdown  = calcRoomBreakdown(rooms.rooms, rooms.pressures, settings, pdRoomIds);
@@ -197,6 +227,14 @@ export default function Dashboard({ config, onReconfigure }) {
         <div className="mx-auto max-w-screen-xl px-4 py-3 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-lg font-bold leading-tight">Ensayos Dashboard</h1>
+            {activeProject && (
+              <div className="text-sm text-slate-400">
+                <span className="text-slate-500">Cliente:</span>{' '}
+                <span className="text-slate-200">{activeProject.client}</span>
+                <span className="text-slate-600 mx-2">·</span>
+                <span className="text-slate-200">{activeProject.execution}</span>
+              </div>
+            )}
             {lastUpdated && <p className="text-xs text-slate-400">Actualizado {lastUpdated}</p>}
           </div>
           <div className="flex items-center gap-2">
@@ -279,7 +317,7 @@ export default function Dashboard({ config, onReconfigure }) {
               pdRoomIds={pdRoomIds}
               settings={settings}
               onRowClick={openRoom}
-              showPd={rooms.pressures.length > 0}
+              showPd={rooms.pressures.length > 0 && settings.pd !== false}
             />
           </div>
         )}
@@ -322,6 +360,7 @@ export default function Dashboard({ config, onReconfigure }) {
           settings={settings}
           onUpdate={updateSetting}
           onClose={() => setShowSettings(false)}
+          rooms={rooms.rooms}
         />
       )}
 

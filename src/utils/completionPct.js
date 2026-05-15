@@ -9,10 +9,15 @@ function isGmpD(gmpClass) {
 }
 
 export const DEFAULT_SETTINGS = {
-  integridad:   'all',  // 'all' | 'exclude-d' | 'none'
-  recuperacion: true,   // incluir en denominador
-  luz:          true,
-  ruido:        true,
+  integridad:        'all',  // 'all' | 'exclude-d' | 'none'
+  recuperacion:      true,
+  recuperacionSalas: {},     // { [roomId]: false } para salas excluidas individualmente
+  renovaciones:      true,
+  temperatura:       true,
+  humedad:           true,
+  luz:               true,
+  ruido:             true,
+  pd:                true,
 };
 
 /**
@@ -31,9 +36,16 @@ export function calcCompletionPct(room, settings = DEFAULT_SETTINGS) {
   }
 
   // Opcionales
-  if (!settings.recuperacion) exclude.add('Recuperación');
+  if (!settings.renovaciones) exclude.add('Ren. Horarias');
+  if (!settings.temperatura)  exclude.add('Temperatura');
+  if (!settings.humedad)      exclude.add('Humedad');
   if (!settings.luz)          exclude.add('Luz');
   if (!settings.ruido)        exclude.add('Ruido');
+
+  // Recuperación: global + per-room
+  if (!settings.recuperacion || settings.recuperacionSalas?.[room.id] === false) {
+    exclude.add('Recuperación');
+  }
 
   const entries  = Object.entries(room.tests).filter(([name]) => !exclude.has(name));
   const total    = entries.length;
@@ -49,10 +61,13 @@ export function calcCompletionPct(room, settings = DEFAULT_SETTINGS) {
  */
 export function visibleBreakdownTypes(allTypes, settings) {
   return allTypes.filter(type => {
-    if (type === 'Integridad'   && settings.integridad === 'none')  return false;
-    if (type === 'Recuperación' && !settings.recuperacion)          return false;
-    if (type === 'Luz'          && !settings.luz)                   return false;
-    if (type === 'Ruido'        && !settings.ruido)                 return false;
+    if (type === 'Integridad'    && settings.integridad === 'none') return false;
+    if (type === 'Ren. Horarias' && !settings.renovaciones)         return false;
+    if (type === 'Temperatura'   && !settings.temperatura)          return false;
+    if (type === 'Humedad'       && !settings.humedad)              return false;
+    if (type === 'Recuperación'  && !settings.recuperacion)         return false;
+    if (type === 'Luz'           && !settings.luz)                  return false;
+    if (type === 'Ruido'         && !settings.ruido)                return false;
     return true;
   });
 }

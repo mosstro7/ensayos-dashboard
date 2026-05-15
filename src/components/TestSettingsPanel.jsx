@@ -1,6 +1,3 @@
-// Panel deslizante (mismo patrón que DetailPanel) para configurar
-// qué ensayos se incluyen en el cálculo del % de completitud.
-
 function Toggle({ enabled, onToggle }) {
   return (
     <button
@@ -20,7 +17,36 @@ function Toggle({ enabled, onToggle }) {
   );
 }
 
-export default function TestSettingsPanel({ settings, onUpdate, onClose }) {
+function ToggleRow({ label, hint, enabled, onToggle, children }) {
+  return (
+    <div className="divide-y divide-slate-700/50">
+      <div className="flex items-center justify-between px-4 py-3 gap-3">
+        <div>
+          <p className="text-sm text-slate-200">{label}</p>
+          {hint && <p className="text-xs text-slate-500">{hint}</p>}
+        </div>
+        <Toggle enabled={enabled} onToggle={onToggle} />
+      </div>
+      {children}
+    </div>
+  );
+}
+
+export default function TestSettingsPanel({ settings, onUpdate, onClose, rooms = [] }) {
+
+  function updateRoomRecuperacion(roomId, enabled) {
+    const next = { ...settings.recuperacionSalas };
+    if (enabled) {
+      delete next[roomId];
+    } else {
+      next[roomId] = false;
+    }
+    onUpdate('recuperacionSalas', next);
+  }
+
+  const excludedCount = Object.values(settings.recuperacionSalas || {})
+    .filter(v => v === false).length;
+
   return (
     <>
       {/* Backdrop */}
@@ -48,10 +74,10 @@ export default function TestSettingsPanel({ settings, onUpdate, onClose }) {
         <div className="p-4 space-y-6">
           <p className="text-xs text-slate-400 leading-relaxed">
             Elegí qué ensayos se incluyen en el denominador del <strong className="text-slate-300">% Total</strong>.
-            Los ensayos desactivados no cuentan ni en el numerador ni en el denominador.
+            Los desactivados no cuentan ni en el numerador ni en el denominador.
           </p>
 
-          {/* ── Integridad ─────────────────────────────────────────── */}
+          {/* ── Integridad ──────────────────────────────────────────── */}
           <section>
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
               Integridad de filtros
@@ -85,29 +111,103 @@ export default function TestSettingsPanel({ settings, onUpdate, onClose }) {
               Ensayos opcionales
             </p>
             <div className="rounded-lg border border-slate-700 bg-slate-800/50 divide-y divide-slate-700/50">
-              {[
-                { key: 'recuperacion', label: 'Recuperación de clase',
-                  hint: 'Arbitrario según el protocolo' },
-                { key: 'luz',          label: 'Luz',
-                  hint: 'Incluir en el cálculo de avance' },
-                { key: 'ruido',        label: 'Ruido',
-                  hint: 'Incluir en el cálculo de avance' },
-              ].map(({ key, label, hint }) => (
-                <div key={key} className="flex items-center justify-between px-4 py-3 gap-3">
+
+              {/* Renovaciones horarias */}
+              <ToggleRow
+                label="Ren. Horarias"
+                hint="Incluir en el cálculo de avance"
+                enabled={settings.renovaciones !== false}
+                onToggle={() => onUpdate('renovaciones', !settings.renovaciones)}
+              />
+
+              {/* Temperatura */}
+              <ToggleRow
+                label="Temperatura"
+                hint="Incluir en el cálculo de avance"
+                enabled={settings.temperatura !== false}
+                onToggle={() => onUpdate('temperatura', !settings.temperatura)}
+              />
+
+              {/* Humedad */}
+              <ToggleRow
+                label="Humedad"
+                hint="Incluir en el cálculo de avance"
+                enabled={settings.humedad !== false}
+                onToggle={() => onUpdate('humedad', !settings.humedad)}
+              />
+
+              {/* Luz */}
+              <ToggleRow
+                label="Luz"
+                hint="Incluir en el cálculo de avance"
+                enabled={settings.luz !== false}
+                onToggle={() => onUpdate('luz', !settings.luz)}
+              />
+
+              {/* Ruido */}
+              <ToggleRow
+                label="Ruido"
+                hint="Incluir en el cálculo de avance"
+                enabled={settings.ruido !== false}
+                onToggle={() => onUpdate('ruido', !settings.ruido)}
+              />
+
+              {/* PD */}
+              <ToggleRow
+                label="Presión Diferencial"
+                hint="Mostrar columna y contar en el avance"
+                enabled={settings.pd !== false}
+                onToggle={() => onUpdate('pd', !settings.pd)}
+              />
+
+              {/* Recuperación — con sub-nivel por sala */}
+              <div>
+                <div className="flex items-center justify-between px-4 py-3 gap-3">
                   <div>
-                    <p className="text-sm text-slate-200">{label}</p>
-                    <p className="text-xs text-slate-500">{hint}</p>
+                    <p className="text-sm text-slate-200">Recuperación de clase</p>
+                    <p className="text-xs text-slate-500">
+                      {settings.recuperacion !== false && excludedCount > 0
+                        ? `${excludedCount} sala${excludedCount > 1 ? 's' : ''} excluida${excludedCount > 1 ? 's' : ''}`
+                        : 'Arbitrario según el protocolo'}
+                    </p>
                   </div>
                   <Toggle
-                    enabled={settings[key]}
-                    onToggle={() => onUpdate(key, !settings[key])}
+                    enabled={settings.recuperacion !== false}
+                    onToggle={() => onUpdate('recuperacion', !settings.recuperacion)}
                   />
                 </div>
-              ))}
+
+                {/* Sub-nivel por sala */}
+                {settings.recuperacion !== false && rooms.length > 0 && (
+                  <div className="border-t border-slate-700/50 bg-slate-900/40 px-3 py-2 max-h-64 overflow-y-auto">
+                    <p className="text-xs text-slate-500 mb-2 px-1">
+                      Desactivar por sala:
+                    </p>
+                    {rooms.map(r => {
+                      const enabled = settings.recuperacionSalas?.[r.id] !== false;
+                      return (
+                        <div
+                          key={r.id}
+                          className="flex items-center justify-between py-1.5 px-1 gap-2"
+                        >
+                          <span className="text-xs text-slate-300 truncate">
+                            <span className="font-mono text-slate-500 mr-1">{r.id}</span>
+                            {r.fullName.replace(r.id, '').trim()}
+                          </span>
+                          <Toggle
+                            enabled={enabled}
+                            onToggle={() => updateRoomRecuperacion(r.id, !enabled)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
             </div>
           </section>
 
-          {/* Nota al pie */}
           <p className="text-xs text-slate-500 leading-relaxed">
             La configuración se guarda automáticamente en el navegador.
           </p>
