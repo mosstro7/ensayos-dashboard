@@ -115,18 +115,18 @@ function GmpBadge({ cls }) {
 
 export default function RoomTable({ rooms, pressures, pdRoomIds, settings = DEFAULT_SETTINGS, onRowClick, showPd = true }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-700">
+    <div className="overflow-auto max-h-[65vh] rounded-xl border border-slate-700">
       <table className="w-full text-sm text-left">
         <thead className="text-xs uppercase tracking-wider text-slate-400">
           <tr>
-            <th className="sticky top-14 z-10 bg-slate-800 px-3 py-3 whitespace-nowrap">ID</th>
-            <th className="sticky top-14 z-10 bg-slate-800 px-3 py-3">Nombre</th>
-            <th className="sticky top-14 z-10 bg-slate-800 px-3 py-3 whitespace-nowrap">Clase</th>
+            <th className="sticky top-0 z-10 bg-slate-800 px-3 py-3 whitespace-nowrap">ID</th>
+            <th className="sticky top-0 z-10 bg-slate-800 px-3 py-3">Nombre</th>
+            <th className="sticky top-0 z-10 bg-slate-800 px-3 py-3 whitespace-nowrap">Clase</th>
             {COL_LABELS.map(l => (
-              <th key={l} className="sticky top-14 z-10 bg-slate-800 px-2 py-3 text-center whitespace-nowrap">{l}</th>
+              <th key={l} className="sticky top-0 z-10 bg-slate-800 px-2 py-3 text-center whitespace-nowrap">{l}</th>
             ))}
-            {showPd && <th className="sticky top-14 z-10 bg-slate-800 px-2 py-3 text-center whitespace-nowrap">PD</th>}
-            <th className="sticky top-14 z-10 bg-slate-800 px-3 py-3 text-center whitespace-nowrap">% Total</th>
+            {showPd && <th className="sticky top-0 z-10 bg-slate-800 px-2 py-3 text-center whitespace-nowrap">PD</th>}
+            <th className="sticky top-0 z-10 bg-slate-800 px-3 py-3 text-center whitespace-nowrap">% Total</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-700/50">
